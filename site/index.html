@@ -1,0 +1,2967 @@
+<!doctype html>
+<html lang="pt-BR">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organizador de Tarefas Diárias - Pro</title>
+  <script src="/_sdk/data_sdk.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100%;
+      height: 100%;
+    }
+    
+    html {
+      height: 100%;
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+      height: 100%;
+      overflow-y: auto;
+    }
+    
+    .header {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    
+    .header h1 {
+      margin: 0 0 10px 0;
+      color: #667eea;
+      font-size: 2.5em;
+    }
+    
+    .header p {
+      margin: 0;
+      color: #666;
+      font-size: 1.1em;
+    }
+    
+    .top-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+    
+    .controls {
+      background: white;
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      margin-bottom: 30px;
+    }
+    
+    .date-selector {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .date-selector label {
+      display: block;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+      font-size: 0.95em;
+    }
+    
+    .date-selector select,
+    .date-selector input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 1em;
+      transition: all 0.3s;
+    }
+    
+    .date-selector select:focus,
+    .date-selector input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .task-form {
+      display: grid;
+      gap: 15px;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 2px solid #f0f0f0;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .form-group label {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+      font-size: 0.95em;
+    }
+    
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 1em;
+      font-family: inherit;
+      transition: all 0.3s;
+    }
+    
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .time-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    
+    .btn {
+      padding: 14px 28px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+    }
+    
+    .btn-primary {
+      background: #667eea;
+      color: white;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-primary:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    }
+    
+    .btn-primary:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+    }
+    
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+    
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+    
+    .btn-success {
+      background: #10b981;
+      color: white;
+    }
+    
+    .btn-success:hover {
+      background: #059669;
+    }
+    
+    .btn-icon {
+      padding: 10px 20px;
+      font-size: 0.9em;
+    }
+    
+    .calendar-view {
+      background: white;
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      margin-bottom: 30px;
+    }
+    
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    
+    .calendar-nav {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    
+    .nav-btn {
+      background: #667eea;
+      color: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.2em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+    }
+    
+    .nav-btn:hover {
+      background: #5568d3;
+      transform: scale(1.1);
+    }
+    
+    .calendar-title {
+      font-size: 1.8em;
+      font-weight: 700;
+      color: #333;
+      margin: 0;
+      min-width: 250px;
+      text-align: center;
+    }
+    
+    .view-toggle {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 1px;
+      background: #e5e7eb;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 30px;
+    }
+    
+    .calendar-day-header {
+      background: #667eea;
+      color: white;
+      padding: 15px 5px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.9em;
+    }
+    
+    .calendar-day {
+      background: white;
+      min-height: 120px;
+      padding: 8px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .calendar-day:hover {
+      background: #f8fafc;
+    }
+    
+    .calendar-day.other-month {
+      background: #f9fafb;
+      color: #9ca3af;
+    }
+    
+    .calendar-day.today {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border: 2px solid #f59e0b;
+    }
+    
+    .calendar-day.has-tasks {
+      background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+    }
+    
+    .day-number {
+      font-weight: 600;
+      font-size: 1.1em;
+      margin-bottom: 5px;
+      color: #374151;
+    }
+    
+    .calendar-day.other-month .day-number {
+      color: #9ca3af;
+    }
+    
+    .day-tasks {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    
+    .task-dot {
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 0.7em;
+      font-weight: 600;
+      text-align: center;
+      color: white;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .task-dot:hover {
+      transform: scale(1.05);
+    }
+    
+    .task-dot.ocupado {
+      background: #ef4444;
+    }
+    
+    .task-dot.livre {
+      background: #10b981;
+    }
+    
+    .task-dot.concluido {
+      background: #6b7280;
+    }
+    
+    .task-count {
+      font-size: 0.7em;
+      color: #6b7280;
+      text-align: center;
+      margin-top: 2px;
+    }
+    
+    .tasks-grid {
+      display: grid;
+      gap: 15px;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    
+    .modal.active {
+      display: flex;
+    }
+    
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      max-width: 900px;
+      width: 100%;
+      max-height: 90%;
+      overflow-y: auto;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .modal-header h2 {
+      margin: 0;
+      color: #333;
+    }
+    
+    .close-modal {
+      background: none;
+      border: none;
+      font-size: 1.5em;
+      cursor: pointer;
+      color: #999;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.3s;
+    }
+    
+    .close-modal:hover {
+      background: #f0f0f0;
+      color: #333;
+    }
+    
+    .task-card {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      padding: 20px;
+      border-radius: 15px;
+      border-left: 5px solid #667eea;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+    
+    .task-card:hover {
+      transform: translateX(5px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .task-card.status-ocupado {
+      border-left-color: #ef4444;
+      background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    }
+    
+    .task-card.status-livre {
+      border-left-color: #10b981;
+      background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    }
+    
+    .task-card.status-concluido {
+      border-left-color: #6b7280;
+      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+      opacity: 0.7;
+    }
+    
+    .task-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 12px;
+    }
+    
+    .task-title {
+      font-size: 1.3em;
+      font-weight: 700;
+      color: #1f2937;
+      margin: 0;
+    }
+    
+    .task-status {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.85em;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .task-status.ocupado {
+      background: #ef4444;
+      color: white;
+    }
+    
+    .task-status.livre {
+      background: #10b981;
+      color: white;
+    }
+    
+    .task-status.concluido {
+      background: #6b7280;
+      color: white;
+    }
+    
+    .task-time {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #4b5563;
+      font-weight: 600;
+      margin-bottom: 10px;
+      font-size: 1.05em;
+    }
+    
+    .task-description {
+      color: #6b7280;
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+    
+    .task-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .task-actions .btn {
+      padding: 8px 16px;
+      font-size: 0.9em;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #9ca3af;
+    }
+    
+    .empty-state svg {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+    
+    .empty-state h3 {
+      font-size: 1.5em;
+      margin: 0 0 10px 0;
+    }
+    
+    .empty-state p {
+      font-size: 1.1em;
+      margin: 0;
+    }
+    
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 15px;
+      text-align: center;
+    }
+    
+    .stat-card h3 {
+      margin: 0 0 10px 0;
+      font-size: 2em;
+    }
+    
+    .stat-card p {
+      margin: 0;
+      opacity: 0.9;
+      font-size: 0.95em;
+    }
+    
+    .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    
+    .tag {
+      padding: 4px 12px;
+      border-radius: 15px;
+      font-size: 0.85em;
+      font-weight: 600;
+      background: rgba(102, 126, 234, 0.1);
+      color: #667eea;
+      border: 1px solid #667eea;
+    }
+    
+    .tag-input-container {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    
+    .tag-input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 0.9em;
+    }
+    
+    .pomodoro-timer {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .timer-display {
+      font-size: 4em;
+      font-weight: 700;
+      color: #667eea;
+      margin: 20px 0;
+      font-family: 'Courier New', monospace;
+    }
+    
+    .timer-controls {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    .timeline-view {
+      background: white;
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      margin-bottom: 30px;
+    }
+    
+    .timeline-hour {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 15px;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 10px 0;
+      min-height: 60px;
+    }
+    
+    .timeline-hour-label {
+      font-weight: 600;
+      color: #6b7280;
+      text-align: right;
+      padding-right: 15px;
+      border-right: 2px solid #e5e7eb;
+    }
+    
+    .timeline-tasks {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    
+    .timeline-task {
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.9em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .timeline-task:hover {
+      transform: translateX(5px);
+    }
+    
+    .timeline-task.ocupado {
+      background: #fee2e2;
+      border-left: 4px solid #ef4444;
+      color: #991b1b;
+    }
+    
+    .timeline-task.livre {
+      background: #d1fae5;
+      border-left: 4px solid #10b981;
+      color: #065f46;
+    }
+    
+    .timeline-task.concluido {
+      background: #f3f4f6;
+      border-left: 4px solid #6b7280;
+      color: #374151;
+    }
+    
+    .search-container {
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    
+    .search-input {
+      width: 100%;
+      padding: 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 1.1em;
+      transition: all 0.3s;
+    }
+    
+    .search-input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .chart-container {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      margin-bottom: 30px;
+    }
+    
+    .chart-bar {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .chart-label {
+      min-width: 120px;
+      font-weight: 600;
+      color: #374151;
+    }
+    
+    .chart-bar-fill {
+      height: 30px;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      border-radius: 5px;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 10px;
+      color: white;
+      font-weight: 600;
+      font-size: 0.9em;
+    }
+    
+    .weekday-btn {
+      padding: 10px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      background: white;
+      color: #666;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 0.9em;
+    }
+    
+    .weekday-btn:hover {
+      border-color: #667eea;
+      background: #f0f4ff;
+    }
+    
+    .weekday-btn.active {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+    
+    .theme-selector {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .theme-option {
+      padding: 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+      font-weight: 600;
+      border: 3px solid transparent;
+    }
+    
+    .theme-option:hover {
+      transform: scale(1.05);
+    }
+    
+    .theme-option.active {
+      border-color: white;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+    }
+    
+    .notification-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: #ef4444;
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7em;
+      font-weight: 700;
+    }
+    
+    .info-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      background: rgba(102, 126, 234, 0.2);
+      border-radius: 50%;
+      font-size: 0.75em;
+      cursor: help;
+      position: relative;
+      transition: all 0.3s;
+      flex-shrink: 0;
+    }
+    
+    .info-icon:hover {
+      background: rgba(102, 126, 234, 0.3);
+      transform: scale(1.1);
+    }
+    
+    .info-icon::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: calc(100% + 10px);
+      left: 50%;
+      transform: translateX(-50%) scale(0);
+      background: #1f2937;
+      color: white;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      white-space: normal;
+      width: 280px;
+      max-width: 90vw;
+      text-align: center;
+      line-height: 1.5;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s;
+      z-index: 1000;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+      font-weight: 500;
+    }
+    
+    .info-icon::before {
+      content: '';
+      position: absolute;
+      bottom: calc(100% + 2px);
+      left: 50%;
+      transform: translateX(-50%) scale(0);
+      border: 8px solid transparent;
+      border-top-color: #1f2937;
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 1000;
+    }
+    
+    .info-icon:hover::after,
+    .info-icon:hover::before {
+      transform: translateX(-50%) scale(1);
+      opacity: 1;
+    }
+    
+    .btn-icon {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .btn-icon .info-icon {
+      margin-left: 2px;
+    }
+    
+    .settings-btn {
+      background: rgba(102, 126, 234, 0.1);
+      border: 2px solid #667eea;
+      color: #667eea;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.2em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+      position: relative;
+    }
+    
+    .settings-btn:hover {
+      background: #667eea;
+      color: white;
+      transform: rotate(90deg);
+    }
+    
+
+    
+    .recurrence-options {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    
+    .recurrence-option {
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .recurrence-option:hover {
+      border-color: #667eea;
+      background: #f0f4ff;
+    }
+    
+    .recurrence-option.active {
+      border-color: #667eea;
+      background: #e0e7ff;
+    }
+    
+    .note-card {
+      background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
+      padding: 20px;
+      border-radius: 15px;
+      border-left: 5px solid #f59e0b;
+      transition: all 0.3s;
+      position: relative;
+    }
+    
+    .note-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .note-card.expanded {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    }
+    
+    .note-preview {
+      color: #78350f;
+      line-height: 1.6;
+      margin: 10px 0 15px 0;
+      max-height: 60px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .note-preview.expanded {
+      max-height: none;
+    }
+    
+    .note-preview::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 30px;
+      background: linear-gradient(to bottom, transparent, #fed7aa);
+    }
+    
+    .note-preview.expanded::after {
+      display: none;
+    }
+    
+    .expand-btn {
+      background: rgba(245, 158, 11, 0.2);
+      border: 2px solid #f59e0b;
+      color: #92400e;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.85em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-right: 10px;
+    }
+    
+    .expand-btn:hover {
+      background: #f59e0b;
+      color: white;
+    }
+    
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 1.8em;
+      }
+      
+      .timer-display {
+        font-size: 2.5em;
+      }
+      
+      .calendar-header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .view-toggle {
+        width: 100%;
+      }
+      
+      .view-toggle .btn {
+        flex: 1;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="container">
+   <div class="header">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+     <h1 id="appTitle" style="margin: 0;">📅 <span data-i18n="app_title">Organizador de Tarefas Diárias Pro</span></h1><button class="settings-btn" onclick="toggleSettings()" data-i18n-title="settings"> ⚙️ <span class="notification-badge" id="notificationBadge" style="display: none;">0</span> </button>
+    </div>
+    <p style="margin: 0; display: flex; align-items: center; justify-content: center; gap: 8px;" data-i18n="app_subtitle">Organize seu tempo com total liberdade e controle <span class="info-icon" data-tooltip="Use este organizador para planejar suas tarefas diárias, criar eventos recorrentes, acompanhar sua produtividade e muito mais!">ℹ️</span></p>
+    <div class="top-actions"><button class="btn btn-secondary btn-icon" onclick="toggleReports()"> 📊 Relatórios <span class="info-icon" data-tooltip="Visualize estatísticas detalhadas sobre suas tarefas, produtividade e tempo gasto em cada atividade">ℹ️</span> </button> <button class="btn btn-secondary btn-icon" onclick="togglePomodoro()"> ⏱️ Pomodoro <span class="info-icon" data-tooltip="Use a técnica Pomodoro para gerenciar seu tempo: 25 minutos de foco seguidos de pausas curtas">ℹ️</span> </button> <button class="btn btn-secondary btn-icon" onclick="toggleTimeline()"> 📅 Timeline <span class="info-icon" data-tooltip="Visualize suas tarefas em uma linha do tempo hora por hora para melhor planejamento do dia">ℹ️</span> </button> <button class="btn btn-secondary btn-icon" onclick="showExportOptions()"> 📤 Exportar <span class="info-icon" data-tooltip="Exporte suas tarefas para PDF, Excel, CSV ou faça backup em JSON">ℹ️</span> </button> <button class="btn btn-secondary btn-icon" onclick="showImportOptions()"> 📥 Importar <span class="info-icon" data-tooltip="Importe tarefas de arquivos JSON ou CSV para restaurar backups ou migrar dados">ℹ️</span> </button> <button class="btn btn-secondary btn-icon" onclick="toggleThemes()"> 🎨 Temas <span class="info-icon" data-tooltip="Personalize a aparência do organizador escolhendo entre 8 temas de cores diferentes">ℹ️</span> </button> <button class="btn btn-secondary btn-icon" onclick="toggleNotes()"> 📝 Notas <span class="info-icon" data-tooltip="Crie e gerencie anotações rápidas para complementar suas tarefas e ideias">ℹ️</span> </button>
+    </div>
+   </div>
+   <div id="notesSection" class="pomodoro-timer" style="display: none;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+     <h2 style="margin: 0; color: #333;">📝 Bloco de Notas</h2><button class="btn btn-success" onclick="saveNote()" id="saveNoteBtn">💾 Salvar Nota</button>
+    </div>
+    <div style="margin-bottom: 20px;"><input type="text" id="noteTitle" placeholder="Título da nota..." style="width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1.1em; font-weight: 600; margin-bottom: 15px;"> <textarea id="noteContent" placeholder="Escreva suas anotações aqui..." style="width: 100%; min-height: 300px; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1em; font-family: inherit; resize: vertical;"></textarea>
+    </div>
+    <div style="margin-bottom: 20px;">
+     <h3 style="color: #667eea; margin-bottom: 15px;">📚 Minhas Notas</h3>
+     <div id="notesList" style="display: grid; gap: 15px;"></div>
+    </div>
+   </div>
+   <div id="pomodoroSection" class="pomodoro-timer" style="display: none;">
+    <h2 style="margin: 0 0 20px 0; color: #333;">⏱️ Timer Pomodoro</h2>
+    <div class="timer-display" id="pomodoroDisplay">
+     25:00
+    </div>
+    <div style="margin-bottom: 20px;"><select id="pomodoroMode" onchange="changePomodoroMode()" style="padding: 10px 20px; border-radius: 8px; border: 2px solid #e0e0e0; font-size: 1em;"> <option value="25">🍅 Trabalho (25 min)</option> <option value="5">☕ Pausa Curta (5 min)</option> <option value="15">🌟 Pausa Longa (15 min)</option> </select>
+    </div>
+    <div class="timer-controls"><button class="btn btn-success" onclick="startPomodoro()" id="pomodoroStartBtn">▶️ Iniciar</button> <button class="btn btn-secondary" onclick="pausePomodoro()" id="pomodoroPauseBtn" style="display: none;">⏸️ Pausar</button> <button class="btn btn-danger" onclick="resetPomodoro()">🔄 Resetar</button>
+    </div>
+    <div style="margin-top: 20px; color: #666;">
+     <p style="margin: 5px 0;">Sessões Hoje: <strong id="pomodoroSessions">0</strong></p>
+     <p style="margin: 5px 0;">Tempo Total: <strong id="pomodoroTotalTime">0h 0min</strong></p>
+    </div>
+   </div>
+   <div id="timelineSection" class="timeline-view" style="display: none;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+     <h2 style="margin: 0; color: #333;">📅 Timeline do Dia</h2><input type="date" id="timelineDate" onchange="renderTimeline()" style="padding: 10px; border-radius: 8px; border: 2px solid #e0e0e0;">
+    </div>
+    <div id="timelineContainer"></div>
+   </div>
+   <div id="reportsSection" class="chart-container" style="display: none;">
+    <h2 style="margin: 0 0 20px 0; color: #333;">📊 Relatórios e Estatísticas</h2>
+    <div style="margin-bottom: 30px;">
+     <h3 style="color: #667eea; margin-bottom: 15px;">Tarefas por Atividade</h3>
+     <div id="activityChart"></div>
+    </div>
+    <div style="margin-bottom: 30px;">
+     <h3 style="color: #667eea; margin-bottom: 15px;">Tarefas por Dia da Semana</h3>
+     <div id="weekdayChart"></div>
+    </div>
+    <div style="margin-bottom: 30px;">
+     <h3 style="color: #667eea; margin-bottom: 15px;">Produtividade Mensal</h3>
+     <div id="monthlyChart"></div>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+     <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 15px; color: white;">
+      <h4 style="margin: 0 0 10px 0;">⏱️ Tempo Total Ocupado</h4>
+      <p style="margin: 0; font-size: 2em; font-weight: 700;" id="totalBusyTime">0h</p>
+     </div>
+     <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 20px; border-radius: 15px; color: white;">
+      <h4 style="margin: 0 0 10px 0;">📈 Taxa de Conclusão</h4>
+      <p style="margin: 0; font-size: 2em; font-weight: 700;" id="completionRate">0%</p>
+     </div>
+     <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 20px; border-radius: 15px; color: white;">
+      <h4 style="margin: 0 0 10px 0;">🔥 Dia Mais Ocupado</h4>
+      <p style="margin: 0; font-size: 1.3em; font-weight: 700;" id="busiestDay">-</p>
+     </div>
+    </div>
+   </div>
+   <div class="search-container"><input type="text" class="search-input" id="searchInput" placeholder="🔍 Buscar tarefas por título, descrição ou atividade..." oninput="searchTasks()">
+    <div id="searchResults" style="margin-top: 15px;"></div>
+   </div>
+   <div class="stats" id="stats">
+    <div class="stat-card">
+     <h3 id="totalTasks">0</h3>
+     <p data-i18n="stat_total">Total de Tarefas!</p>
+    </div>
+    <div class="stat-card">
+     <h3 id="busyTasks">0</h3>
+     <p data-i18n="stat_busy">Ocupado!</p>
+    </div>
+    <div class="stat-card">
+     <h3 id="freeTasks">0</h3>
+     <p data-i18n="stat_free">Livre!</p>
+    </div>
+    <div class="stat-card">
+     <h3 id="completedTasks">0</h3>
+     <p data-i18n="stat_completed">Concluído!</p>
+    </div>
+   </div>
+   <div class="controls">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
+     <h2 style="margin: 0; color: #333;"><span data-i18n="add_new_task">➕ Adicionar Nova Tarefa</span></h2>
+     <div style="display: flex; gap: 10px;"><button type="button" class="btn btn-secondary" onclick="toggleMultipleDays()" id="multipleDaysBtn" style="padding: 10px 20px;"> <span id="multipleDaysBtnText" data-i18n="multiple_days">📅 Múltiplos Dias</span> </button> <button type="button" class="btn btn-secondary" onclick="toggleRecurrence()" id="recurrenceBtn" style="padding: 10px 20px;"> 🔄 Recorrente </button>
+     </div>
+    </div>
+    <form id="taskForm" class="task-form">
+     <div class="form-group"><label for="taskTitle">Título da Tarefa *</label> <input type="text" id="taskTitle" required placeholder="Ex: Reunião com cliente">
+     </div>
+     <div class="form-group"><label for="taskDescription">Descrição / Motivo</label> <textarea id="taskDescription" placeholder="Descreva o que você vai fazer e por quê..."></textarea>
+     </div>
+     <div class="form-group" id="singleDateGroup"><label for="taskDate">Data *</label> <input type="date" id="taskDate" required>
+     </div>
+     <div class="form-group" id="multipleDateGroup" style="display: none;"><label>Período de Datas *</label>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+       <div><label for="taskStartDate" style="font-size: 0.9em; color: #666; margin-bottom: 5px; display: block;">Data Início</label> <input type="date" id="taskStartDate" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px;">
+       </div>
+       <div><label for="taskEndDate" style="font-size: 0.9em; color: #666; margin-bottom: 5px; display: block;">Data Fim</label> <input type="date" id="taskEndDate" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px;">
+       </div>
+      </div>
+      <div style="margin-top: 15px;"><label style="font-size: 0.95em; color: #333; margin-bottom: 8px; display: block; font-weight: 600;">Selecione os dias da semana:</label>
+       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px;"><button type="button" class="weekday-btn" data-day="0" onclick="toggleWeekday(0)">Dom</button> <button type="button" class="weekday-btn" data-day="1" onclick="toggleWeekday(1)">Seg</button> <button type="button" class="weekday-btn" data-day="2" onclick="toggleWeekday(2)">Ter</button> <button type="button" class="weekday-btn" data-day="3" onclick="toggleWeekday(3)">Qua</button> <button type="button" class="weekday-btn" data-day="4" onclick="toggleWeekday(4)">Qui</button> <button type="button" class="weekday-btn" data-day="5" onclick="toggleWeekday(5)">Sex</button> <button type="button" class="weekday-btn" data-day="6" onclick="toggleWeekday(6)">Sáb</button>
+       </div>
+       <div style="margin-top: 10px; display: flex; gap: 8px;"><button type="button" class="btn btn-secondary" onclick="selectWeekdaysPreset('weekdays')" style="flex: 1; padding: 8px; font-size: 0.85em;">📚 Seg-Sex</button> <button type="button" class="btn btn-secondary" onclick="selectWeekdaysPreset('weekend')" style="flex: 1; padding: 8px; font-size: 0.85em;">🎉 Fim de Semana</button> <button type="button" class="btn btn-secondary" onclick="selectWeekdaysPreset('all')" style="flex: 1; padding: 8px; font-size: 0.85em;">📅 Todos</button>
+       </div>
+      </div>
+     </div>
+     <div class="form-group" id="recurrenceGroup" style="display: none;"><label>Padrão de Recorrência</label>
+      <div class="recurrence-options">
+       <div class="recurrence-option" onclick="selectRecurrence('daily')"><input type="radio" name="recurrence" value="daily"> 📅 Diariamente
+       </div>
+       <div class="recurrence-option" onclick="selectRecurrence('weekly')"><input type="radio" name="recurrence" value="weekly"> 📆 Semanalmente
+       </div>
+       <div class="recurrence-option" onclick="selectRecurrence('biweekly')"><input type="radio" name="recurrence" value="biweekly"> 🗓️ A cada 2 semanas
+       </div>
+       <div class="recurrence-option" onclick="selectRecurrence('monthly')"><input type="radio" name="recurrence" value="monthly"> 📅 Mensalmente
+       </div>
+      </div>
+      <div style="margin-top: 10px;"><label for="recurrenceEnd" style="font-size: 0.9em; color: #666;">Repetir até:</label> <input type="date" id="recurrenceEnd" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; margin-top: 5px;">
+      </div>
+     </div>
+     <div class="time-inputs">
+      <div class="form-group"><label for="taskStartTime">Horário Início *</label> <input type="time" id="taskStartTime" required>
+      </div>
+      <div class="form-group"><label for="taskEndTime">Horário Fim *</label> <input type="time" id="taskEndTime" required>
+      </div>
+     </div>
+     <div class="form-group"><label for="taskActivity">O que você estará fazendo? *</label> <select id="taskActivity" required> <option value="">Selecione uma atividade...</option> <option value="trabalho">💼 Trabalho</option> <option value="reuniao">🤝 Reunião</option> <option value="estudo">📚 Estudo</option> <option value="exercicio">🏃‍♂️ Exercício</option> <option value="alimentacao">🍽️ Alimentação</option> <option value="descanso">😴 Descanso</option> <option value="familia">👨‍👩‍👧‍👦 Família</option> <option value="lazer">🎮 Lazer</option> <option value="compras">🛒 Compras</option> <option value="medico">🏥 Médico</option> <option value="viagem">✈️ Viagem</option> <option value="outro">📝 Outro</option> </select>
+     </div>
+     <div class="form-group"><label for="taskStatus">Status *</label> <select id="taskStatus" required> <option value="ocupado">🔴 Ocupado</option> <option value="livre">🟢 Livre</option> <option value="concluido">⚫ Concluído</option> </select>
+     </div>
+     <div class="form-group"><label>Tags Personalizadas</label>
+      <div class="tag-input-container"><input type="text" id="tagInput" class="tag-input" placeholder="Digite uma tag e pressione Enter"> <button type="button" class="btn btn-secondary" onclick="addTag()">+ Adicionar</button>
+      </div>
+      <div class="tags-container" id="tagsContainer"></div>
+     </div>
+     <div class="form-group"><label> <input type="checkbox" id="taskReminder" style="margin-right: 8px;"> 🔔 Ativar lembrete (15 minutos antes) </label>
+     </div><button type="submit" class="btn btn-primary" id="submitBtn"> <span id="addTaskButtonText">Adicionar Tarefa</span> </button>
+    </form>
+   </div>
+   <div class="calendar-view">
+    <div class="calendar-header">
+     <div class="calendar-nav"><button class="nav-btn" onclick="changeMonth(-1)">‹</button>
+      <h2 class="calendar-title" id="calendarTitle">Janeiro 2024</h2><button class="nav-btn" onclick="changeMonth(1)">›</button>
+     </div>
+     <div class="view-toggle"><button class="btn btn-secondary" onclick="toggleView('calendar')" id="calendarViewBtn">📅 Calendário</button> <button class="btn btn-secondary" onclick="toggleView('list')" id="listViewBtn">📋 Lista</button>
+     </div>
+    </div>
+    <div id="calendarContainer">
+     <div class="calendar-grid" id="calendarGrid">
+      <div class="calendar-day-header">
+       Dom
+      </div>
+      <div class="calendar-day-header">
+       Seg
+      </div>
+      <div class="calendar-day-header">
+       Ter
+      </div>
+      <div class="calendar-day-header">
+       Qua
+      </div>
+      <div class="calendar-day-header">
+       Qui
+      </div>
+      <div class="calendar-day-header">
+       Sex
+      </div>
+      <div class="calendar-day-header">
+       Sáb
+      </div>
+     </div>
+    </div>
+    <div id="tasksList" class="tasks-grid" style="display: none;"></div>
+    <div style="margin-top: 20px;">
+     <div class="view-toggle"><button class="btn btn-secondary" onclick="filterTasks('all')">Todas</button> <button class="btn btn-secondary" onclick="filterTasks('ocupado')">Ocupado</button> <button class="btn btn-secondary" onclick="filterTasks('livre')">Livre</button> <button class="btn btn-secondary" onclick="filterTasks('concluido')">Concluído</button>
+     </div>
+    </div>
+   </div>
+   <div id="dayDetailModal" class="modal">
+    <div class="modal-content">
+     <div class="modal-header">
+      <h2 id="dayDetailTitle">Tarefas do Dia</h2><button class="close-modal" onclick="closeDayDetail()">×</button>
+     </div>
+     <div id="dayDetailTasks"></div>
+    </div>
+   </div>
+   <div id="editModal" class="modal">
+    <div class="modal-content">
+     <div class="modal-header">
+      <h2>✏️ Editar Tarefa</h2><button class="close-modal" onclick="closeEditModal()">×</button>
+     </div>
+     <form id="editForm" class="task-form">
+      <div class="form-group"><label for="editTitle">Título da Tarefa *</label> <input type="text" id="editTitle" required>
+      </div>
+      <div class="form-group"><label for="editDescription">Descrição / Motivo</label> <textarea id="editDescription"></textarea>
+      </div>
+      <div class="form-group"><label for="editDate">Data *</label> <input type="date" id="editDate" required>
+      </div>
+      <div class="time-inputs">
+       <div class="form-group"><label for="editStartTime">Horário Início *</label> <input type="time" id="editStartTime" required>
+       </div>
+       <div class="form-group"><label for="editEndTime">Horário Fim *</label> <input type="time" id="editEndTime" required>
+       </div>
+      </div>
+      <div class="form-group"><label for="editActivity">O que você estará fazendo? *</label> <select id="editActivity" required> <option value="">Selecione uma atividade...</option> <option value="trabalho">💼 Trabalho</option> <option value="reuniao">🤝 Reunião</option> <option value="estudo">📚 Estudo</option> <option value="exercicio">🏃‍♂️ Exercício</option> <option value="alimentacao">🍽️ Alimentação</option> <option value="descanso">😴 Descanso</option> <option value="familia">👨‍👩‍👧‍👦 Família</option> <option value="lazer">🎮 Lazer</option> <option value="compras">🛒 Compras</option> <option value="medico">🏥 Médico</option> <option value="viagem">✈️ Viagem</option> <option value="outro">📝 Outro</option> </select>
+      </div>
+      <div class="form-group"><label for="editStatus">Status *</label> <select id="editStatus" required> <option value="ocupado">🔴 Ocupado</option> <option value="livre">🟢 Livre</option> <option value="concluido">⚫ Concluído</option> </select>
+      </div>
+      <div class="form-group"><label>Tags</label>
+       <div class="tags-container" id="editTagsContainer"></div>
+      </div>
+      <div style="display: flex; gap: 10px;"><button type="submit" class="btn btn-primary" style="flex: 1;" id="updateBtn"> Salvar Alterações </button> <button type="button" class="btn btn-secondary" onclick="closeEditModal()"> Cancelar </button>
+      </div>
+     </form>
+    </div>
+   </div>
+   <div id="exportModal" class="modal">
+    <div class="modal-content">
+     <div class="modal-header">
+      <h2>📤 Exportar Dados</h2><button class="close-modal" onclick="closeExportModal()">×</button>
+     </div>
+     <div style="display: grid; gap: 15px;"><button class="btn btn-primary" onclick="exportToPDF()">📄 Exportar para PDF</button> <button class="btn btn-primary" onclick="exportToExcel()">📊 Exportar para Excel</button> <button class="btn btn-primary" onclick="exportToCSV()">📋 Exportar para CSV</button> <button class="btn btn-secondary" onclick="exportToJSON()">💾 Backup JSON</button>
+     </div>
+    </div>
+   </div>
+   <div id="importModal" class="modal">
+    <div class="modal-content">
+     <div class="modal-header">
+      <h2>📥 Importar Dados</h2><button class="close-modal" onclick="closeImportModal()">×</button>
+     </div>
+     <div style="display: grid; gap: 15px;">
+      <div><label for="importFile" class="btn btn-primary" style="display: block; cursor: pointer;"> 📁 Selecionar Arquivo (JSON/CSV) </label> <input type="file" id="importFile" accept=".json,.csv" style="display: none;" onchange="handleImport(event)">
+      </div>
+      <p style="color: #666; font-size: 0.9em; margin: 0;">ℹ️ Selecione um arquivo JSON ou CSV para importar suas tarefas</p>
+     </div>
+    </div>
+   </div>
+   <div id="themesModal" class="modal">
+    <div class="modal-content">
+     <div class="modal-header">
+      <h2>🎨 Escolher Tema</h2><button class="close-modal" onclick="closeThemesModal()">×</button>
+     </div>
+     <div class="theme-selector">
+      <div class="theme-option" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;" onclick="applyTheme('default')">
+       Padrão
+      </div>
+      <div class="theme-option" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;" onclick="applyTheme('sunset')">
+       Pôr do Sol
+      </div>
+      <div class="theme-option" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;" onclick="applyTheme('ocean')">
+       Oceano
+      </div>
+      <div class="theme-option" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;" onclick="applyTheme('forest')">
+       Floresta
+      </div>
+      <div class="theme-option" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white;" onclick="applyTheme('candy')">
+       Doce
+      </div>
+      <div class="theme-option" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); color: white;" onclick="applyTheme('night')">
+       Noite
+      </div>
+      <div class="theme-option" style="background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%); color: white;" onclick="applyTheme('dark')">
+       Escuro
+      </div>
+      <div class="theme-option" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); color: #333;" onclick="applyTheme('peach')">
+       Pêssego
+      </div>
+     </div>
+    </div>
+   </div>
+   <div id="settingsPanel" class="modal">
+    <div class="modal-content">
+     <div class="modal-header">
+      <h2>⚙️ Configurações</h2><button class="close-modal" onclick="closeSettings()">×</button>
+     </div>
+     <div style="display: grid; gap: 20px;">
+      <div>
+       <h3 style="color: #667eea; margin-bottom: 10px;">🔔 Notificações</h3><label style="display: flex; align-items: center; gap: 10px;"> <input type="checkbox" id="notificationsEnabled" onchange="toggleNotifications()"> Ativar notificações de lembretes </label>
+      </div>
+      <div>
+       <h3 style="color: #667eea; margin-bottom: 10px;">🌍 Idioma</h3><select id="languageSelect" style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #e0e0e0;"> <option value="pt">🇧🇷 Português</option> <option value="en">🇺🇸 English</option> <option value="es">🇪🇸 Español</option> </select>
+      </div>
+      <div>
+       <h3 style="color: #667eea; margin-bottom: 10px;">⏰ Formato de Hora</h3><select id="timeFormatSelect" style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #e0e0e0;"> <option value="24">24 horas</option> <option value="12">12 horas (AM/PM)</option> </select>
+      </div><button class="btn btn-primary" onclick="closeSettings()">✅ Salvar e Fechar</button>
+     </div>
+    </div>
+   </div>
+   <script>
+    const defaultConfig = {
+      app_title: "📅 Organizador de Tarefas Diárias Pro",
+      add_task_button_text: "Adicionar Tarefa"
+    };
+
+    let allTasks = [];
+    let currentFilter = 'all';
+    let editingTask = null;
+    let currentRecordCount = 0;
+    let currentDate = new Date();
+    let currentView = 'calendar';
+    let isMultipleDaysMode = false;
+    let isRecurrenceMode = false;
+    let selectedWeekdays = [0, 1, 2, 3, 4, 5, 6];
+    let selectedRecurrence = null;
+    let currentTags = [];
+    let currentTheme = 'default';
+    let allNotes = [];
+    let editingNote = null;
+    
+    // Pomodoro
+    let pomodoroInterval = null;
+    let pomodoroTimeLeft = 25 * 60;
+    let pomodoroMode = 25;
+    let pomodoroSessions = 0;
+    let pomodoroTotalMinutes = 0;
+    let pomodoroRunning = false;
+    
+    // Notificações
+    let notificationPermission = false;
+    let upcomingReminders = [];
+    
+
+
+    const dataHandler = {
+      onDataChanged(data) {
+        allNotes = data;
+        allTasks = data.filter(item => item.type !== 'note').sort((a, b) => {
+          const dateCompare = a.date.localeCompare(b.date);
+          if (dateCompare !== 0) return dateCompare;
+          return a.startTime.localeCompare(b.startTime);
+        });
+        currentRecordCount = data.length;
+        updateStats();
+        if (currentView === 'calendar') {
+          renderCalendar();
+        } else {
+          renderTasks();
+        }
+        checkReminders();
+        
+        if (document.getElementById('notesSection').style.display === 'block') {
+          renderNotesList();
+        }
+      }
+    };
+
+    async function initializeApp() {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('taskDate').value = today;
+      document.getElementById('taskStartDate').value = today;
+      document.getElementById('taskEndDate').value = today;
+      document.getElementById('timelineDate').value = today;
+      
+      updateCalendarTitle();
+      toggleView('calendar');
+      
+      if (window.dataSdk) {
+        const result = await window.dataSdk.init(dataHandler);
+        if (!result.isOk) {
+          console.error("Erro ao inicializar SDK de dados");
+        }
+      }
+
+      if (window.elementSdk) {
+        window.elementSdk.init({
+          defaultConfig,
+          onConfigChange: async (config) => {
+            const appTitle = config.app_title || defaultConfig.app_title;
+            const addTaskButtonText = config.add_task_button_text || defaultConfig.add_task_button_text;
+            
+            document.getElementById('appTitle').innerHTML = appTitle;
+            document.getElementById('addTaskButtonText').textContent = addTaskButtonText;
+          },
+          mapToCapabilities: (config) => ({
+            recolorables: [],
+            borderables: [],
+            fontEditable: undefined,
+            fontSizeable: undefined
+          }),
+          mapToEditPanelValues: (config) => new Map([
+            ["app_title", config.app_title || defaultConfig.app_title],
+            ["add_task_button_text", config.add_task_button_text || defaultConfig.add_task_button_text]
+          ])
+        });
+      }
+      
+      requestNotificationPermission();
+      loadTheme();
+      
+      document.getElementById('tagInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          addTag();
+        }
+      });
+    }
+
+    function changeMonth(direction) {
+      currentDate.setMonth(currentDate.getMonth() + direction);
+      updateCalendarTitle();
+      renderCalendar();
+    }
+
+    function updateCalendarTitle() {
+      const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+      const title = `${months[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+      document.getElementById('calendarTitle').textContent = title;
+    }
+
+    function toggleView(view) {
+      currentView = view;
+      const calendarContainer = document.getElementById('calendarContainer');
+      const tasksList = document.getElementById('tasksList');
+      const calendarBtn = document.getElementById('calendarViewBtn');
+      const listBtn = document.getElementById('listViewBtn');
+
+      if (view === 'calendar') {
+        calendarContainer.style.display = 'block';
+        tasksList.style.display = 'none';
+        calendarBtn.style.background = '#667eea';
+        calendarBtn.style.color = 'white';
+        listBtn.style.background = '#f0f0f0';
+        listBtn.style.color = '#333';
+        renderCalendar();
+      } else {
+        calendarContainer.style.display = 'none';
+        tasksList.style.display = 'grid';
+        listBtn.style.background = '#667eea';
+        listBtn.style.color = 'white';
+        calendarBtn.style.background = '#f0f0f0';
+        calendarBtn.style.color = '#333';
+        renderTasks();
+      }
+    }
+
+    function renderCalendar() {
+      const grid = document.getElementById('calendarGrid');
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      
+      const existingDays = grid.querySelectorAll('.calendar-day');
+      existingDays.forEach(day => day.remove());
+      
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const daysInMonth = lastDay.getDate();
+      const startingDayOfWeek = firstDay.getDay();
+      
+      const prevMonth = new Date(year, month, 0);
+      const daysInPrevMonth = prevMonth.getDate();
+      
+      for (let i = startingDayOfWeek - 1; i >= 0; i--) {
+        const dayNum = daysInPrevMonth - i;
+        const dayElement = createCalendarDay(dayNum, true, year, month - 1);
+        grid.appendChild(dayElement);
+      }
+      
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayElement = createCalendarDay(day, false, year, month);
+        grid.appendChild(dayElement);
+      }
+      
+      const totalCells = grid.children.length - 7;
+      const remainingCells = 42 - totalCells;
+      for (let day = 1; day <= remainingCells; day++) {
+        const dayElement = createCalendarDay(day, true, year, month + 1);
+        grid.appendChild(dayElement);
+      }
+    }
+
+    function createCalendarDay(dayNum, isOtherMonth, year, month) {
+      const dayElement = document.createElement('div');
+      dayElement.className = 'calendar-day';
+      
+      if (isOtherMonth) {
+        dayElement.classList.add('other-month');
+      }
+      
+      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+      const today = new Date().toISOString().split('T')[0];
+      
+      if (dateStr === today && !isOtherMonth) {
+        dayElement.classList.add('today');
+      }
+      
+      const dayTasks = allTasks.filter(task => task.date === dateStr);
+      const filteredDayTasks = currentFilter === 'all' ? dayTasks : dayTasks.filter(task => task.status === currentFilter);
+      
+      if (filteredDayTasks.length > 0) {
+        dayElement.classList.add('has-tasks');
+      }
+      
+      dayElement.innerHTML = `
+        <div class="day-number">${dayNum}</div>
+        <div class="day-tasks">
+          ${filteredDayTasks.slice(0, 3).map(task => `
+            <div class="task-dot ${task.status}" title="${task.title}">
+              ${getActivityEmoji(task.activity)} ${task.title}
+            </div>
+          `).join('')}
+          ${filteredDayTasks.length > 3 ? `<div class="task-count">+${filteredDayTasks.length - 3}</div>` : ''}
+        </div>
+      `;
+      
+      dayElement.addEventListener('click', () => {
+        if (!isOtherMonth) {
+          showDayDetail(dateStr, dayTasks);
+        }
+      });
+      
+      return dayElement;
+    }
+
+    function showDayDetail(dateStr, tasks) {
+      const date = new Date(dateStr + 'T00:00:00');
+      const weekdays = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+      const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+      const dateFormatted = `${weekdays[date.getDay()]}, ${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+      
+      document.getElementById('dayDetailTitle').textContent = `📅 ${dateFormatted}`;
+      
+      const container = document.getElementById('dayDetailTasks');
+      
+      if (tasks.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 60px; height: 60px;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+            </svg>
+            <h3>Nenhuma tarefa neste dia</h3>
+            <p>Clique em "Adicionar Tarefa" para criar uma nova!</p>
+          </div>
+        `;
+      } else {
+        container.innerHTML = tasks.map(task => renderTaskCard(task)).join('');
+      }
+      
+      document.getElementById('dayDetailModal').classList.add('active');
+    }
+
+    function closeDayDetail() {
+      document.getElementById('dayDetailModal').classList.remove('active');
+    }
+
+    function renderTaskCard(task) {
+      const tagsHtml = task.tags && task.tags.length > 0 ? `
+        <div class="tags-container" style="margin-top: 10px;">
+          ${task.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+        </div>
+      ` : '';
+      
+      return `
+        <div class="task-card status-${task.status}" style="margin-bottom: 15px;">
+          <div class="task-header">
+            <h3 class="task-title">${task.title}</h3>
+            <span class="task-status ${task.status}">${getStatusEmoji(task.status)} ${getStatusName(task.status)}</span>
+          </div>
+          <div class="task-time">
+            🕐 ${task.startTime} - ${task.endTime}
+          </div>
+          <div style="color: #4b5563; font-weight: 600; margin-bottom: 10px; font-size: 1.05em;">
+            ${getActivityEmoji(task.activity)} ${getActivityName(task.activity)}
+          </div>
+          ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
+          ${tagsHtml}
+          ${task.reminder ? '<div style="color: #667eea; font-size: 0.9em; margin-top: 10px;">🔔 Lembrete ativado</div>' : ''}
+          <div class="task-actions">
+            <button class="btn btn-secondary" onclick='editTask(${JSON.stringify(task)})'>
+              ✏️ Editar
+            </button>
+            <button class="btn btn-danger" onclick='deleteTask(${JSON.stringify(task)})'>
+              🗑️ Excluir
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderTasks() {
+      const container = document.getElementById('tasksList');
+      const filteredTasks = currentFilter === 'all' 
+        ? allTasks 
+        : allTasks.filter(task => task.status === currentFilter);
+      
+      if (filteredTasks.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+            </svg>
+            <h3>Nenhuma tarefa encontrada</h3>
+            <p>Adicione sua primeira tarefa para começar!</p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = filteredTasks.map(task => {
+        const date = new Date(task.date + 'T00:00:00');
+        const weekdays = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+        const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+        const dateStr = `${weekdays[date.getDay()]}, ${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+        
+        const tagsHtml = task.tags && task.tags.length > 0 ? `
+          <div class="tags-container" style="margin-top: 10px;">
+            ${task.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+          </div>
+        ` : '';
+        
+        return `
+          <div class="task-card status-${task.status}">
+            <div class="task-header">
+              <h3 class="task-title">${task.title}</h3>
+              <span class="task-status ${task.status}">${getStatusEmoji(task.status)} ${getStatusName(task.status)}</span>
+            </div>
+            <div class="task-time">
+              🕐 ${task.startTime} - ${task.endTime}
+            </div>
+            <div style="color: #6b7280; margin-bottom: 10px; font-size: 0.95em;">
+              📅 ${dateStr}
+            </div>
+            <div style="color: #4b5563; font-weight: 600; margin-bottom: 10px; font-size: 1.05em;">
+              ${getActivityEmoji(task.activity)} ${getActivityName(task.activity)}
+            </div>
+            ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
+            ${tagsHtml}
+            ${task.reminder ? '<div style="color: #667eea; font-size: 0.9em; margin-top: 10px;">🔔 Lembrete ativado</div>' : ''}
+            <div class="task-actions">
+              <button class="btn btn-secondary" onclick='editTask(${JSON.stringify(task)})'>
+                ✏️ Editar
+              </button>
+              <button class="btn btn-danger" onclick='deleteTask(${JSON.stringify(task)})'>
+                🗑️ Excluir
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function getStatusEmoji(status) {
+      const emojis = {
+        'ocupado': '🔴',
+        'livre': '🟢',
+        'concluido': '⚫'
+      };
+      return emojis[status] || '⚪';
+    }
+
+    function getStatusName(status) {
+      const names = {
+        'ocupado': 'Ocupado',
+        'livre': 'Livre',
+        'concluido': 'Concluído'
+      };
+      return names[status] || status;
+    }
+
+    function getActivityEmoji(activity) {
+      const emojis = {
+        'trabalho': '💼',
+        'reuniao': '🤝',
+        'estudo': '📚',
+        'exercicio': '🏃‍♂️',
+        'alimentacao': '🍽️',
+        'descanso': '😴',
+        'familia': '👨‍👩‍👧‍👦',
+        'lazer': '🎮',
+        'compras': '🛒',
+        'medico': '🏥',
+        'viagem': '✈️',
+        'outro': '📝'
+      };
+      return emojis[activity] || '📝';
+    }
+
+    function getActivityName(activity) {
+      const names = {
+        'trabalho': 'Trabalho',
+        'reuniao': 'Reunião',
+        'estudo': 'Estudo',
+        'exercicio': 'Exercício',
+        'alimentacao': 'Alimentação',
+        'descanso': 'Descanso',
+        'familia': 'Família',
+        'lazer': 'Lazer',
+        'compras': 'Compras',
+        'medico': 'Médico',
+        'viagem': 'Viagem',
+        'outro': 'Outro'
+      };
+      return names[activity] || activity;
+    }
+
+    function filterTasks(filter) {
+      currentFilter = filter;
+      if (currentView === 'calendar') {
+        renderCalendar();
+      } else {
+        renderTasks();
+      }
+    }
+
+    function toggleMultipleDays() {
+      isMultipleDaysMode = !isMultipleDaysMode;
+      const singleDateGroup = document.getElementById('singleDateGroup');
+      const multipleDateGroup = document.getElementById('multipleDateGroup');
+      const btn = document.getElementById('multipleDaysBtn');
+      const btnText = document.getElementById('multipleDaysBtnText');
+      
+      if (isMultipleDaysMode) {
+        singleDateGroup.style.display = 'none';
+        multipleDateGroup.style.display = 'block';
+        document.getElementById('taskDate').removeAttribute('required');
+        document.getElementById('taskStartDate').setAttribute('required', 'required');
+        document.getElementById('taskEndDate').setAttribute('required', 'required');
+        btn.style.background = '#667eea';
+        btn.style.color = 'white';
+        btnText.textContent = '📅 Dia Único';
+      } else {
+        singleDateGroup.style.display = 'block';
+        multipleDateGroup.style.display = 'none';
+        document.getElementById('taskDate').setAttribute('required', 'required');
+        document.getElementById('taskStartDate').removeAttribute('required');
+        document.getElementById('taskEndDate').removeAttribute('required');
+        btn.style.background = '#f0f0f0';
+        btn.style.color = '#333';
+        btnText.textContent = '📅 Múltiplos Dias';
+      }
+    }
+
+    function toggleRecurrence() {
+      isRecurrenceMode = !isRecurrenceMode;
+      const recurrenceGroup = document.getElementById('recurrenceGroup');
+      const btn = document.getElementById('recurrenceBtn');
+      
+      if (isRecurrenceMode) {
+        recurrenceGroup.style.display = 'block';
+        btn.style.background = '#667eea';
+        btn.style.color = 'white';
+      } else {
+        recurrenceGroup.style.display = 'none';
+        btn.style.background = '#f0f0f0';
+        btn.style.color = '#333';
+        selectedRecurrence = null;
+      }
+    }
+
+    function selectRecurrence(type) {
+      selectedRecurrence = type;
+      document.querySelectorAll('.recurrence-option').forEach(opt => opt.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+      document.querySelector(`input[value="${type}"]`).checked = true;
+    }
+
+    function toggleWeekday(day) {
+      const btn = document.querySelector(`.weekday-btn[data-day="${day}"]`);
+      const index = selectedWeekdays.indexOf(day);
+      
+      if (index > -1) {
+        selectedWeekdays.splice(index, 1);
+        btn.classList.remove('active');
+      } else {
+        selectedWeekdays.push(day);
+        btn.classList.add('active');
+      }
+      
+      selectedWeekdays.sort((a, b) => a - b);
+    }
+
+    function selectWeekdaysPreset(preset) {
+      document.querySelectorAll('.weekday-btn').forEach(btn => btn.classList.remove('active'));
+      
+      if (preset === 'weekdays') {
+        selectedWeekdays = [1, 2, 3, 4, 5];
+      } else if (preset === 'weekend') {
+        selectedWeekdays = [0, 6];
+      } else if (preset === 'all') {
+        selectedWeekdays = [0, 1, 2, 3, 4, 5, 6];
+      }
+      
+      selectedWeekdays.forEach(day => {
+        document.querySelector(`.weekday-btn[data-day="${day}"]`).classList.add('active');
+      });
+    }
+
+    function getDatesInRange(startDate, endDate) {
+      const dates = [];
+      const current = new Date(startDate + 'T00:00:00');
+      const end = new Date(endDate + 'T00:00:00');
+      
+      while (current <= end) {
+        const dayOfWeek = current.getDay();
+        if (selectedWeekdays.includes(dayOfWeek)) {
+          dates.push(current.toISOString().split('T')[0]);
+        }
+        current.setDate(current.getDate() + 1);
+      }
+      
+      return dates;
+    }
+
+    function getRecurrenceDates(startDate, endDate, pattern) {
+      const dates = [];
+      const current = new Date(startDate + 'T00:00:00');
+      const end = new Date(endDate + 'T00:00:00');
+      
+      while (current <= end) {
+        dates.push(current.toISOString().split('T')[0]);
+        
+        switch(pattern) {
+          case 'daily':
+            current.setDate(current.getDate() + 1);
+            break;
+          case 'weekly':
+            current.setDate(current.getDate() + 7);
+            break;
+          case 'biweekly':
+            current.setDate(current.getDate() + 14);
+            break;
+          case 'monthly':
+            current.setMonth(current.getMonth() + 1);
+            break;
+        }
+      }
+      
+      return dates;
+    }
+
+    function addTag() {
+      const input = document.getElementById('tagInput');
+      const tag = input.value.trim();
+      
+      if (tag && !currentTags.includes(tag)) {
+        currentTags.push(tag);
+        renderTags();
+        input.value = '';
+      }
+    }
+
+    function removeTag(tag) {
+      currentTags = currentTags.filter(t => t !== tag);
+      renderTags();
+    }
+
+    function renderTags() {
+      const container = document.getElementById('tagsContainer');
+      container.innerHTML = currentTags.map(tag => `
+        <span class="tag" style="cursor: pointer;" onclick="removeTag('${tag}')">
+          ${tag} ×
+        </span>
+      `).join('');
+    }
+
+    // Sons diferentes para cada ação
+    function playSound(type) {
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        // Sons diferentes baseados no tipo de ação
+        switch(type) {
+          case 'task': // Tarefa criada - som agudo e rápido
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.1);
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+            oscillator.stop(audioContext.currentTime + 0.2);
+            break;
+            
+          case 'note': // Nota salva - som médio e suave
+            oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(900, audioContext.currentTime + 0.15);
+            gainNode.gain.setValueAtTime(0.25, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            oscillator.stop(audioContext.currentTime + 0.3);
+            break;
+            
+          case 'delete': // Exclusão - som grave e curto
+            oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 0.1);
+            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+            oscillator.stop(audioContext.currentTime + 0.15);
+            break;
+            
+          case 'export': // Exportação - som duplo
+            oscillator.frequency.setValueAtTime(700, audioContext.currentTime);
+            oscillator.frequency.setValueAtTime(900, audioContext.currentTime + 0.1);
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.25);
+            oscillator.stop(audioContext.currentTime + 0.25);
+            break;
+            
+          case 'pomodoro': // Pomodoro completo - som longo e celebratório
+            oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(1000, audioContext.currentTime + 0.2);
+            oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.4);
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            oscillator.stop(audioContext.currentTime + 0.5);
+            break;
+            
+          case 'theme': // Tema aplicado - som ascendente
+            oscillator.frequency.setValueAtTime(500, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(1100, audioContext.currentTime + 0.2);
+            gainNode.gain.setValueAtTime(0.25, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            oscillator.stop(audioContext.currentTime + 0.3);
+            break;
+            
+          default: // Som padrão
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.1);
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }
+        
+        oscillator.start(audioContext.currentTime);
+      } catch (e) {
+        // Silenciosamente ignora se o áudio não estiver disponível
+      }
+    }
+
+    document.getElementById('taskForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="loading"></span>';
+      
+      const baseTask = {
+        title: document.getElementById('taskTitle').value,
+        description: document.getElementById('taskDescription').value,
+        startTime: document.getElementById('taskStartTime').value,
+        endTime: document.getElementById('taskEndTime').value,
+        activity: document.getElementById('taskActivity').value,
+        status: document.getElementById('taskStatus').value,
+        tags: [...currentTags],
+        reminder: document.getElementById('taskReminder').checked,
+        createdAt: new Date().toISOString()
+      };
+      
+      let tasksToCreate = [];
+      
+      if (isRecurrenceMode && selectedRecurrence) {
+        const startDate = document.getElementById('taskDate').value;
+        const endDate = document.getElementById('recurrenceEnd').value || startDate;
+        const dates = getRecurrenceDates(startDate, endDate, selectedRecurrence);
+        
+        if (currentRecordCount + dates.length > 999) {
+          showMessage('Limite máximo de 999 tarefas atingido!');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = `<span id="addTaskButtonText">${window.elementSdk?.config?.add_task_button_text || defaultConfig.add_task_button_text}</span>`;
+          return;
+        }
+        
+        tasksToCreate = dates.map(date => ({
+          ...baseTask,
+          id: `${Date.now()}-${date}`,
+          date: date,
+          recurrence: selectedRecurrence
+        }));
+      } else if (isMultipleDaysMode) {
+        const startDate = document.getElementById('taskStartDate').value;
+        const endDate = document.getElementById('taskEndDate').value;
+        const dates = getDatesInRange(startDate, endDate);
+        
+        if (currentRecordCount + dates.length > 999) {
+          showMessage('Limite máximo de 999 tarefas atingido!');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = `<span id="addTaskButtonText">${window.elementSdk?.config?.add_task_button_text || defaultConfig.add_task_button_text}</span>`;
+          return;
+        }
+        
+        tasksToCreate = dates.map(date => ({
+          ...baseTask,
+          id: `${Date.now()}-${date}`,
+          date: date
+        }));
+      } else {
+        if (currentRecordCount >= 999) {
+          showMessage('Limite máximo de 999 tarefas atingido!');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = `<span id="addTaskButtonText">${window.elementSdk?.config?.add_task_button_text || defaultConfig.add_task_button_text}</span>`;
+          return;
+        }
+        
+        tasksToCreate = [{
+          ...baseTask,
+          id: Date.now().toString(),
+          date: document.getElementById('taskDate').value
+        }];
+      }
+      
+      if (window.dataSdk) {
+        let successCount = 0;
+        
+        for (const task of tasksToCreate) {
+          const result = await window.dataSdk.create(task);
+          if (result.isOk) {
+            successCount++;
+          }
+        }
+        
+        if (successCount > 0) {
+          playSound('task');
+          document.getElementById('taskForm').reset();
+          currentTags = [];
+          renderTags();
+          const today = new Date().toISOString().split('T')[0];
+          document.getElementById('taskDate').value = today;
+          document.getElementById('taskStartDate').value = today;
+          document.getElementById('taskEndDate').value = today;
+          
+          if (successCount === 1) {
+            showMessage('✅ Tarefa adicionada com sucesso!');
+          } else {
+            showMessage(`✅ ${successCount} tarefas criadas com sucesso!`);
+          }
+        } else {
+          showMessage('❌ Erro ao adicionar tarefa. Tente novamente.');
+        }
+      }
+      
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `<span id="addTaskButtonText">${window.elementSdk?.config?.add_task_button_text || defaultConfig.add_task_button_text}</span>`;
+    });
+
+    function editTask(task) {
+      editingTask = task;
+      document.getElementById('editTitle').value = task.title;
+      document.getElementById('editDescription').value = task.description;
+      document.getElementById('editDate').value = task.date;
+      document.getElementById('editStartTime').value = task.startTime;
+      document.getElementById('editEndTime').value = task.endTime;
+      document.getElementById('editActivity').value = task.activity || 'outro';
+      document.getElementById('editStatus').value = task.status;
+      
+      const editTagsContainer = document.getElementById('editTagsContainer');
+      if (task.tags && task.tags.length > 0) {
+        editTagsContainer.innerHTML = task.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+      } else {
+        editTagsContainer.innerHTML = '';
+      }
+      
+      document.getElementById('editModal').classList.add('active');
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').classList.remove('active');
+      editingTask = null;
+    }
+
+    document.getElementById('editForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      if (!editingTask) return;
+      
+      const updateBtn = document.getElementById('updateBtn');
+      updateBtn.disabled = true;
+      updateBtn.innerHTML = '<span class="loading"></span>';
+      
+      const updatedTask = {
+        ...editingTask,
+        title: document.getElementById('editTitle').value,
+        description: document.getElementById('editDescription').value,
+        date: document.getElementById('editDate').value,
+        startTime: document.getElementById('editStartTime').value,
+        endTime: document.getElementById('editEndTime').value,
+        activity: document.getElementById('editActivity').value,
+        status: document.getElementById('editStatus').value
+      };
+      
+      if (window.dataSdk) {
+        const result = await window.dataSdk.update(updatedTask);
+        
+        if (result.isOk) {
+          playSound('task');
+          closeEditModal();
+          showMessage('✅ Tarefa atualizada com sucesso!');
+        } else {
+          showMessage('❌ Erro ao atualizar tarefa. Tente novamente.');
+        }
+      }
+      
+      updateBtn.disabled = false;
+      updateBtn.textContent = 'Salvar Alterações';
+    });
+
+    async function deleteTask(task) {
+      const confirmDiv = document.createElement('div');
+      confirmDiv.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); z-index: 2000; text-align: center; max-width: 400px;';
+      confirmDiv.innerHTML = `
+        <h3 style="margin: 0 0 15px 0; color: #333;">Confirmar Exclusão</h3>
+        <p style="margin: 0 0 20px 0; color: #666;">Tem certeza que deseja excluir esta tarefa?</p>
+        <div style="display: flex; gap: 10px; justify-content: center;">
+          <button class="btn btn-danger" id="confirmDelete">Sim, Excluir</button>
+          <button class="btn btn-secondary" id="cancelDelete">Cancelar</button>
+        </div>
+      `;
+      
+      const backdrop = document.createElement('div');
+      backdrop.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1999;';
+      
+      document.body.appendChild(backdrop);
+      document.body.appendChild(confirmDiv);
+      
+      document.getElementById('confirmDelete').onclick = async () => {
+        const deleteBtn = document.getElementById('confirmDelete');
+        deleteBtn.disabled = true;
+        deleteBtn.innerHTML = '<span class="loading"></span>';
+        
+        if (window.dataSdk) {
+          const result = await window.dataSdk.delete(task);
+          
+          if (result.isOk) {
+            playSound('delete');
+            showMessage('✅ Tarefa excluída com sucesso!');
+          } else {
+            showMessage('❌ Erro ao excluir tarefa. Tente novamente.');
+          }
+        }
+        
+        document.body.removeChild(backdrop);
+        document.body.removeChild(confirmDiv);
+      };
+      
+      document.getElementById('cancelDelete').onclick = () => {
+        document.body.removeChild(backdrop);
+        document.body.removeChild(confirmDiv);
+      };
+      
+      backdrop.onclick = () => {
+        document.body.removeChild(backdrop);
+        document.body.removeChild(confirmDiv);
+      };
+    }
+
+    function updateStats() {
+      document.getElementById('totalTasks').textContent = allTasks.length;
+      document.getElementById('busyTasks').textContent = allTasks.filter(t => t.status === 'ocupado').length;
+      document.getElementById('freeTasks').textContent = allTasks.filter(t => t.status === 'livre').length;
+      document.getElementById('completedTasks').textContent = allTasks.filter(t => t.status === 'concluido').length;
+    }
+
+    function showMessage(message) {
+      const toast = document.createElement('div');
+      toast.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #667eea; color: white; padding: 15px 25px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 3000; animation: slideIn 0.3s ease;';
+      toast.textContent = message;
+      
+      const style = document.createElement('style');
+      style.textContent = '@keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }';
+      document.head.appendChild(style);
+      
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.animation = 'slideIn 0.3s ease reverse';
+        setTimeout(() => document.body.removeChild(toast), 300);
+      }, 3000);
+    }
+
+    // Pomodoro Functions
+    function togglePomodoro() {
+      const section = document.getElementById('pomodoroSection');
+      section.style.display = section.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function changePomodoroMode() {
+      pomodoroMode = parseInt(document.getElementById('pomodoroMode').value);
+      pomodoroTimeLeft = pomodoroMode * 60;
+      updatePomodoroDisplay();
+    }
+
+    function startPomodoro() {
+      if (pomodoroRunning) return;
+      
+      pomodoroRunning = true;
+      document.getElementById('pomodoroStartBtn').style.display = 'none';
+      document.getElementById('pomodoroPauseBtn').style.display = 'inline-block';
+      
+      pomodoroInterval = setInterval(() => {
+        pomodoroTimeLeft--;
+        updatePomodoroDisplay();
+        
+        if (pomodoroTimeLeft <= 0) {
+          pausePomodoro();
+          pomodoroSessions++;
+          pomodoroTotalMinutes += pomodoroMode;
+          updatePomodoroStats();
+          playSound('pomodoro');
+          showMessage('⏰ Pomodoro concluído! Faça uma pausa.');
+        }
+      }, 1000);
+    }
+
+    function pausePomodoro() {
+      pomodoroRunning = false;
+      clearInterval(pomodoroInterval);
+      document.getElementById('pomodoroStartBtn').style.display = 'inline-block';
+      document.getElementById('pomodoroPauseBtn').style.display = 'none';
+    }
+
+    function resetPomodoro() {
+      pausePomodoro();
+      pomodoroTimeLeft = pomodoroMode * 60;
+      updatePomodoroDisplay();
+    }
+
+    function updatePomodoroDisplay() {
+      const minutes = Math.floor(pomodoroTimeLeft / 60);
+      const seconds = pomodoroTimeLeft % 60;
+      document.getElementById('pomodoroDisplay').textContent = 
+        `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+
+    function updatePomodoroStats() {
+      document.getElementById('pomodoroSessions').textContent = pomodoroSessions;
+      const hours = Math.floor(pomodoroTotalMinutes / 60);
+      const minutes = pomodoroTotalMinutes % 60;
+      document.getElementById('pomodoroTotalTime').textContent = `${hours}h ${minutes}min`;
+    }
+
+    // Timeline Functions
+    function toggleTimeline() {
+      const section = document.getElementById('timelineSection');
+      section.style.display = section.style.display === 'none' ? 'block' : 'none';
+      if (section.style.display === 'block') {
+        renderTimeline();
+      }
+    }
+
+    function renderTimeline() {
+      const dateStr = document.getElementById('timelineDate').value;
+      const dayTasks = allTasks.filter(task => task.date === dateStr);
+      const container = document.getElementById('timelineContainer');
+      
+      if (dayTasks.length === 0) {
+        container.innerHTML = '<div class="empty-state"><h3>Nenhuma tarefa neste dia</h3></div>';
+        return;
+      }
+      
+      const hours = Array.from({length: 24}, (_, i) => i);
+      
+      container.innerHTML = hours.map(hour => {
+        const hourStr = String(hour).padStart(2, '0');
+        const hourTasks = dayTasks.filter(task => {
+          const taskHour = parseInt(task.startTime.split(':')[0]);
+          return taskHour === hour;
+        });
+        
+        return `
+          <div class="timeline-hour">
+            <div class="timeline-hour-label">${hourStr}:00</div>
+            <div class="timeline-tasks">
+              ${hourTasks.map(task => `
+                <div class="timeline-task ${task.status}" onclick='showDayDetail("${dateStr}", ${JSON.stringify(dayTasks)})'>
+                  ${getActivityEmoji(task.activity)} ${task.title} (${task.startTime} - ${task.endTime})
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Reports Functions
+    function toggleReports() {
+      const section = document.getElementById('reportsSection');
+      section.style.display = section.style.display === 'none' ? 'block' : 'none';
+      if (section.style.display === 'block') {
+        generateReports();
+      }
+    }
+
+    function generateReports() {
+      // Activity Chart
+      const activityCounts = {};
+      allTasks.forEach(task => {
+        activityCounts[task.activity] = (activityCounts[task.activity] || 0) + 1;
+      });
+      
+      const activityChart = document.getElementById('activityChart');
+      const maxCount = Math.max(...Object.values(activityCounts), 1);
+      
+      activityChart.innerHTML = Object.entries(activityCounts)
+        .sort((a, b) => b[1] - a[1])
+        .map(([activity, count]) => `
+          <div class="chart-bar">
+            <div class="chart-label">${getActivityEmoji(activity)} ${getActivityName(activity)}</div>
+            <div class="chart-bar-fill" style="width: ${(count / maxCount) * 100}%">
+              ${count}
+            </div>
+          </div>
+        `).join('');
+      
+      // Weekday Chart
+      const weekdayCounts = [0, 0, 0, 0, 0, 0, 0];
+      allTasks.forEach(task => {
+        const date = new Date(task.date + 'T00:00:00');
+        weekdayCounts[date.getDay()]++;
+      });
+      
+      const weekdayChart = document.getElementById('weekdayChart');
+      const maxWeekday = Math.max(...weekdayCounts, 1);
+      const weekdayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+      
+      weekdayChart.innerHTML = weekdayCounts.map((count, index) => `
+        <div class="chart-bar">
+          <div class="chart-label">${weekdayNames[index]}</div>
+          <div class="chart-bar-fill" style="width: ${(count / maxWeekday) * 100}%">
+            ${count}
+          </div>
+        </div>
+      `).join('');
+      
+      // Monthly Chart
+      const monthlyCounts = {};
+      allTasks.forEach(task => {
+        const month = task.date.substring(0, 7);
+        monthlyCounts[month] = (monthlyCounts[month] || 0) + 1;
+      });
+      
+      const monthlyChart = document.getElementById('monthlyChart');
+      const maxMonthly = Math.max(...Object.values(monthlyCounts), 1);
+      
+      monthlyChart.innerHTML = Object.entries(monthlyCounts)
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([month, count]) => `
+          <div class="chart-bar">
+            <div class="chart-label">${month}</div>
+            <div class="chart-bar-fill" style="width: ${(count / maxMonthly) * 100}%">
+              ${count}
+            </div>
+          </div>
+        `).join('');
+      
+      // Total Busy Time
+      let totalMinutes = 0;
+      allTasks.filter(t => t.status === 'ocupado').forEach(task => {
+        const [startH, startM] = task.startTime.split(':').map(Number);
+        const [endH, endM] = task.endTime.split(':').map(Number);
+        const minutes = (endH * 60 + endM) - (startH * 60 + startM);
+        totalMinutes += minutes;
+      });
+      document.getElementById('totalBusyTime').textContent = `${Math.floor(totalMinutes / 60)}h ${totalMinutes % 60}min`;
+      
+      // Completion Rate
+      const completed = allTasks.filter(t => t.status === 'concluido').length;
+      const rate = allTasks.length > 0 ? Math.round((completed / allTasks.length) * 100) : 0;
+      document.getElementById('completionRate').textContent = `${rate}%`;
+      
+      // Busiest Day
+      const dateCounts = {};
+      allTasks.filter(t => t.status === 'ocupado').forEach(task => {
+        dateCounts[task.date] = (dateCounts[task.date] || 0) + 1;
+      });
+      
+      const busiestDate = Object.entries(dateCounts).sort((a, b) => b[1] - a[1])[0];
+      if (busiestDate) {
+        const date = new Date(busiestDate[0] + 'T00:00:00');
+        const weekdays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+        document.getElementById('busiestDay').textContent = 
+          `${weekdays[date.getDay()]}, ${date.getDate()}/${date.getMonth() + 1} (${busiestDate[1]} tarefas)`;
+      } else {
+        document.getElementById('busiestDay').textContent = '-';
+      }
+    }
+
+    // Search Functions
+    function searchTasks() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const results = document.getElementById('searchResults');
+      
+      if (!query) {
+        results.innerHTML = '';
+        return;
+      }
+      
+      const filtered = allTasks.filter(task => 
+        task.title.toLowerCase().includes(query) ||
+        task.description.toLowerCase().includes(query) ||
+        getActivityName(task.activity).toLowerCase().includes(query) ||
+        (task.tags && task.tags.some(tag => tag.toLowerCase().includes(query)))
+      );
+      
+      if (filtered.length === 0) {
+        results.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">Nenhuma tarefa encontrada</p>';
+        return;
+      }
+      
+      results.innerHTML = `
+        <div style="display: grid; gap: 10px; margin-top: 15px;">
+          ${filtered.slice(0, 5).map(task => `
+            <div class="task-card status-${task.status}" style="cursor: pointer;" onclick='showDayDetail("${task.date}", ${JSON.stringify(allTasks.filter(t => t.date === task.date))})'>
+              <div style="display: flex; justify-content: space-between; align-items: start;">
+                <div>
+                  <strong>${task.title}</strong>
+                  <div style="font-size: 0.9em; color: #666; margin-top: 5px;">
+                    📅 ${task.date} | 🕐 ${task.startTime} - ${task.endTime}
+                  </div>
+                </div>
+                <span class="task-status ${task.status}">${getStatusEmoji(task.status)}</span>
+              </div>
+            </div>
+          `).join('')}
+          ${filtered.length > 5 ? `<p style="text-align: center; color: #666;">+${filtered.length - 5} mais resultados</p>` : ''}
+        </div>
+      `;
+    }
+
+    // Export Functions
+    function showExportOptions() {
+      document.getElementById('exportModal').classList.add('active');
+    }
+
+    function closeExportModal() {
+      document.getElementById('exportModal').classList.remove('active');
+    }
+
+    function exportToPDF() {
+      showMessage('📄 Gerando PDF... (funcionalidade simulada)');
+      closeExportModal();
+    }
+
+    function exportToExcel() {
+      const csv = convertToCSV(allTasks);
+      downloadFile(csv, 'tarefas.csv', 'text/csv');
+      playSound('export');
+      showMessage('✅ Exportado para Excel/CSV com sucesso!');
+      closeExportModal();
+    }
+
+    function exportToCSV() {
+      const csv = convertToCSV(allTasks);
+      downloadFile(csv, 'tarefas.csv', 'text/csv');
+      playSound('export');
+      showMessage('✅ Exportado para CSV com sucesso!');
+      closeExportModal();
+    }
+
+    function exportToJSON() {
+      const json = JSON.stringify(allTasks, null, 2);
+      downloadFile(json, 'backup-tarefas.json', 'application/json');
+      playSound('export');
+      showMessage('✅ Backup JSON criado com sucesso!');
+      closeExportModal();
+    }
+
+    function convertToCSV(tasks) {
+      const headers = ['Data', 'Título', 'Descrição', 'Início', 'Fim', 'Atividade', 'Status', 'Tags'];
+      const rows = tasks.map(task => [
+        task.date,
+        task.title,
+        task.description || '',
+        task.startTime,
+        task.endTime,
+        getActivityName(task.activity),
+        getStatusName(task.status),
+        (task.tags || []).join('; ')
+      ]);
+      
+      return [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+    }
+
+    function downloadFile(content, filename, type) {
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Import Functions
+    function showImportOptions() {
+      document.getElementById('importModal').classList.add('active');
+    }
+
+    function closeImportModal() {
+      document.getElementById('importModal').classList.remove('active');
+    }
+
+    async function handleImport(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          let tasks = [];
+          
+          if (file.name.endsWith('.json')) {
+            tasks = JSON.parse(e.target.result);
+          } else if (file.name.endsWith('.csv')) {
+            tasks = parseCSV(e.target.result);
+          }
+          
+          if (window.dataSdk && tasks.length > 0) {
+            let imported = 0;
+            for (const task of tasks) {
+              if (currentRecordCount + imported >= 999) {
+                showMessage(`⚠️ Limite atingido! ${imported} tarefas importadas.`);
+                break;
+              }
+              
+              const result = await window.dataSdk.create({
+                ...task,
+                id: `${Date.now()}-${imported}`,
+                createdAt: new Date().toISOString()
+              });
+              
+              if (result.isOk) imported++;
+            }
+            
+            playSound('export');
+            showMessage(`✅ ${imported} tarefas importadas com sucesso!`);
+          }
+        } catch (error) {
+          showMessage('❌ Erro ao importar arquivo. Verifique o formato.');
+        }
+        
+        closeImportModal();
+      };
+      
+      reader.readAsText(file);
+    }
+
+    function parseCSV(csv) {
+      const lines = csv.split('\n').slice(1);
+      return lines.map(line => {
+        const [date, title, description, startTime, endTime, activity, status, tags] = 
+          line.split(',').map(cell => cell.replace(/^"|"$/g, ''));
+        
+        return {
+          date,
+          title,
+          description,
+          startTime,
+          endTime,
+          activity: Object.keys({trabalho: 1, reuniao: 1, estudo: 1}).find(k => 
+            getActivityName(k).toLowerCase() === activity.toLowerCase()) || 'outro',
+          status: Object.keys({ocupado: 1, livre: 1, concluido: 1}).find(k => 
+            getStatusName(k).toLowerCase() === status.toLowerCase()) || 'ocupado',
+          tags: tags ? tags.split('; ') : []
+        };
+      }).filter(task => task.date && task.title);
+    }
+
+    // Theme Functions
+    function toggleThemes() {
+      document.getElementById('themesModal').classList.add('active');
+      highlightCurrentTheme();
+    }
+
+    function closeThemesModal() {
+      document.getElementById('themesModal').classList.remove('active');
+    }
+
+    function highlightCurrentTheme() {
+      document.querySelectorAll('.theme-option').forEach(opt => opt.classList.remove('active'));
+    }
+
+    function applyTheme(theme) {
+      currentTheme = theme;
+      
+      const themes = {
+        default: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        sunset: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+        ocean: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+        forest: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+        candy: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+        night: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
+        dark: 'linear-gradient(135deg, #2d3748 0%, #1a202c 100%)',
+        peach: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)'
+      };
+      
+      document.body.style.background = themes[theme];
+      saveTheme();
+      playSound('theme');
+      showMessage('🎨 Tema aplicado com sucesso!');
+      closeThemesModal();
+    }
+
+    function saveTheme() {
+      try {
+        localStorage.setItem('appTheme', currentTheme);
+      } catch (e) {}
+    }
+
+    function loadTheme() {
+      try {
+        const saved = localStorage.getItem('appTheme');
+        if (saved) {
+          currentTheme = saved;
+          const themes = {
+            default: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            sunset: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+            ocean: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+            forest: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+            candy: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+            night: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
+            dark: 'linear-gradient(135deg, #2d3748 0%, #1a202c 100%)',
+            peach: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)'
+          };
+          document.body.style.background = themes[currentTheme];
+        }
+      } catch (e) {}
+    }
+
+    // Notification Functions
+    function requestNotificationPermission() {
+      if ('Notification' in window) {
+        Notification.requestPermission().then(permission => {
+          notificationPermission = permission === 'granted';
+        });
+      }
+    }
+
+    function checkReminders() {
+      if (!notificationPermission) return;
+      
+      const now = new Date();
+      const in15min = new Date(now.getTime() + 15 * 60000);
+      
+      allTasks.forEach(task => {
+        if (!task.reminder) return;
+        
+        const taskDateTime = new Date(`${task.date}T${task.startTime}`);
+        
+        if (taskDateTime > now && taskDateTime <= in15min) {
+          if (!upcomingReminders.includes(task.id)) {
+            upcomingReminders.push(task.id);
+            showNotification(task);
+          }
+        }
+      });
+      
+      updateNotificationBadge();
+    }
+
+    function showNotification(task) {
+      if (notificationPermission) {
+        new Notification('🔔 Lembrete de Tarefa', {
+          body: `${task.title} começa em 15 minutos!\n${task.startTime} - ${task.endTime}`,
+          icon: '📅'
+        });
+      }
+    }
+
+    function updateNotificationBadge() {
+      const badge = document.getElementById('notificationBadge');
+      if (upcomingReminders.length > 0) {
+        badge.textContent = upcomingReminders.length;
+        badge.style.display = 'flex';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+
+    function toggleNotifications() {
+      const enabled = document.getElementById('notificationsEnabled').checked;
+      if (enabled && !notificationPermission) {
+        requestNotificationPermission();
+      }
+    }
+
+    // Settings Functions
+    function toggleSettings() {
+      document.getElementById('settingsPanel').classList.add('active');
+    }
+
+    function closeSettings() {
+      document.getElementById('settingsPanel').classList.remove('active');
+    }
+
+    // Modal close on backdrop click
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.remove('active');
+        }
+      });
+    });
+
+    // Notes Functions
+    function toggleNotes() {
+      const section = document.getElementById('notesSection');
+      section.style.display = section.style.display === 'none' ? 'block' : 'none';
+      if (section.style.display === 'block') {
+        renderNotesList();
+      }
+    }
+
+    async function saveNote() {
+      const title = document.getElementById('noteTitle').value.trim();
+      const content = document.getElementById('noteContent').value.trim();
+      
+      if (!title || !content) {
+        showMessage('⚠️ Preencha o título e o conteúdo da nota!');
+        return;
+      }
+      
+      const saveBtn = document.getElementById('saveNoteBtn');
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<span class="loading"></span>';
+      
+      if (window.dataSdk) {
+        if (editingNote) {
+          // Update existing note
+          const updatedNote = {
+            ...editingNote,
+            title,
+            content,
+            updatedAt: new Date().toISOString()
+          };
+          
+          const result = await window.dataSdk.update(updatedNote);
+          
+          if (result.isOk) {
+            playSound('note');
+            showMessage('✅ Nota atualizada com sucesso!');
+            clearNoteForm();
+          } else {
+            showMessage('❌ Erro ao atualizar nota.');
+          }
+        } else {
+          // Create new note
+          if (currentRecordCount >= 999) {
+            showMessage('⚠️ Limite máximo de 999 itens atingido!');
+            saveBtn.disabled = false;
+            saveBtn.textContent = '💾 Salvar Nota';
+            return;
+          }
+          
+          const newNote = {
+            id: `note-${Date.now()}`,
+            type: 'note',
+            title,
+            content,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          };
+          
+          const result = await window.dataSdk.create(newNote);
+          
+          if (result.isOk) {
+            playSound('note');
+            showMessage('✅ Nota salva com sucesso!');
+            clearNoteForm();
+          } else {
+            showMessage('❌ Erro ao salvar nota.');
+          }
+        }
+      }
+      
+      saveBtn.disabled = false;
+      saveBtn.textContent = '💾 Salvar Nota';
+    }
+
+    function clearNoteForm() {
+      document.getElementById('noteTitle').value = '';
+      document.getElementById('noteContent').value = '';
+      editingNote = null;
+      document.getElementById('saveNoteBtn').textContent = '💾 Salvar Nota';
+    }
+
+    function toggleNoteExpand(noteId) {
+      const preview = document.getElementById(`note-preview-${noteId}`);
+      const btn = document.getElementById(`expand-btn-${noteId}`);
+      
+      if (preview.classList.contains('expanded')) {
+        preview.classList.remove('expanded');
+        btn.textContent = '📖 Ver Completo';
+      } else {
+        preview.classList.add('expanded');
+        btn.textContent = '📕 Ver Menos';
+      }
+    }
+
+    function renderNotesList() {
+      const container = document.getElementById('notesList');
+      const notes = allNotes.filter(item => item.type === 'note');
+      
+      if (notes.length === 0) {
+        container.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">Nenhuma nota salva ainda</p>';
+        return;
+      }
+      
+      container.innerHTML = notes.map(note => {
+        const date = new Date(note.updatedAt || note.createdAt);
+        const dateStr = date.toLocaleDateString('pt-BR', { 
+          day: '2-digit', 
+          month: '2-digit', 
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        
+        const needsExpand = note.content.length > 150;
+        
+        return `
+          <div class="note-card">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+              <h4 style="margin: 0; color: #92400e; font-size: 1.2em;">${note.title}</h4>
+              <span style="font-size: 0.85em; color: #78350f;">${dateStr}</span>
+            </div>
+            <div class="note-preview" id="note-preview-${note.id}">${note.content}</div>
+            <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+              ${needsExpand ? `<button class="expand-btn" id="expand-btn-${note.id}" onclick="toggleNoteExpand('${note.id}')">📖 Ver Completo</button>` : ''}
+              <button class="btn btn-secondary" onclick='editNote(${JSON.stringify(note)})' style="padding: 6px 12px; font-size: 0.9em;">✏️ Editar</button>
+              <button class="btn btn-danger" onclick='deleteNote(${JSON.stringify(note)})' style="padding: 6px 12px; font-size: 0.9em;">🗑️ Excluir</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function editNote(note) {
+      editingNote = note;
+      document.getElementById('noteTitle').value = note.title;
+      document.getElementById('noteContent').value = note.content;
+      
+      document.getElementById('saveNoteBtn').textContent = '💾 Atualizar Nota';
+      window.scrollTo({ top: document.getElementById('notesSection').offsetTop - 20, behavior: 'smooth' });
+    }
+    
+
+
+    async function deleteNote(note) {
+      const confirmDiv = document.createElement('div');
+      confirmDiv.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); z-index: 2000; text-align: center; max-width: 400px;';
+      confirmDiv.innerHTML = `
+        <h3 style="margin: 0 0 15px 0; color: #333;">Confirmar Exclusão</h3>
+        <p style="margin: 0 0 20px 0; color: #666;">Tem certeza que deseja excluir esta nota?</p>
+        <div style="display: flex; gap: 10px; justify-content: center;">
+          <button class="btn btn-danger" id="confirmDeleteNote">Sim, Excluir</button>
+          <button class="btn btn-secondary" id="cancelDeleteNote">Cancelar</button>
+        </div>
+      `;
+      
+      const backdrop = document.createElement('div');
+      backdrop.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1999;';
+      
+      document.body.appendChild(backdrop);
+      document.body.appendChild(confirmDiv);
+      
+      document.getElementById('confirmDeleteNote').onclick = async () => {
+        const deleteBtn = document.getElementById('confirmDeleteNote');
+        deleteBtn.disabled = true;
+        deleteBtn.innerHTML = '<span class="loading"></span>';
+        
+        if (window.dataSdk) {
+          const result = await window.dataSdk.delete(note);
+          
+          if (result.isOk) {
+            playSound('delete');
+            showMessage('✅ Nota excluída com sucesso!');
+            if (editingNote && editingNote.id === note.id) {
+              clearNoteForm();
+            }
+          } else {
+            showMessage('❌ Erro ao excluir nota.');
+          }
+        }
+        
+        document.body.removeChild(backdrop);
+        document.body.removeChild(confirmDiv);
+      };
+      
+      document.getElementById('cancelDeleteNote').onclick = () => {
+        document.body.removeChild(backdrop);
+        document.body.removeChild(confirmDiv);
+      };
+      
+      backdrop.onclick = () => {
+        document.body.removeChild(backdrop);
+        document.body.removeChild(confirmDiv);
+      };
+    }
+
+
+
+    // Check reminders every minute
+    setInterval(() => {
+      checkReminders();
+    }, 60000);
+
+    initializeApp();
+  </script>
+  </div>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99b11bb784b42874',t:'MTc2MjU2MzM2Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
